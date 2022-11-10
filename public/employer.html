@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Employer Dashboard</title>
+</head>
+
+<body>
+    <h3>Welcome</h3><br>
+    Click <a href="/postJobs.html">here</a> to create a listing
+    <br><br>
+    Your Listing
+    <ul id="listings">
+    </ul>
+    <button onclick="logout()"></button>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        function logout() {
+            window.localStorage.removeItem("JWT");
+            window.location.href = "./login1.html"
+        }
+        const listing = document.getElementById("listing");
+        let config = {
+            headers: {
+                "auth-token": window.localStorage.getItem("JWT")
+            }
+        }
+        console.log(config);
+        axios.get("/employer/profile", config)
+            .then((user) => {
+                axios.get(`/employer/listing?email=${user.data.email}`, config)
+                    .then((list) => {
+                        console.log(list.data.listings)
+                        arr = list.data.listings
+                        arr.forEach(element => {
+                            axios.get(`/employer/listingById?id=${element}`, config).then((listing) => {
+                                console.log(listing.data.listing)
+                                listings.innerHTML += `
+                            <div>
+                                <h3>${listing.data.listing.name}</h3>
+                                <p>${listing.data.listing.desc}</p>
+                            </div>
+                            `;
+                            })
+                        });
+                    }).catch((err) => {
+                        console.log(err);
+                    })
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+
+    </script>
+</body>
+
+</html>
